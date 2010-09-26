@@ -5,6 +5,10 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 
+import physics.Particle;
+import physics.Physics;
+import physics.math.Circle;
+import physics.math.Vector2f;
 import physics.util.SettingsManager;
 
 public class Demo implements RenderListener {
@@ -13,9 +17,11 @@ public class Demo implements RenderListener {
 
 	private boolean quitting = false;
 	private final Renderer renderer;
+	private final Physics physics;
 
 	public Demo() {
 		renderer = new Renderer();
+		physics = new Physics(0.016f); // 60 fps
 
 		final SettingsManager settings = SettingsManager.getInstance();
 
@@ -25,14 +31,14 @@ public class Demo implements RenderListener {
 				settings.getBoolean("demo.window.fullScreen"));
 		renderer.addListener(this);
 	}
-	
-    /**
-     * Starts the render loop
-     */
-    public void start() {
-        LOG.info("Starting renderer");
-        renderer.beginLoop();
-    }
+
+	/**
+	 * Starts the render loop
+	 */
+	public void start() {
+		LOG.info("Starting renderer");
+		renderer.beginLoop();
+	}
 
 	public static void main(String[] args) {
 		/* Init log4j */
@@ -51,20 +57,22 @@ public class Demo implements RenderListener {
 
 	@Override
 	public void initialize() {
-		// TODO Auto-generated method stub
-
+		/* Add a test particle. */
+		physics.addParticle(new Particle(new Vector2f(200, 100), 1.0f));
 	}
 
 	@Override
 	public void update(double delta) {
-		// TODO Auto-generated method stub
-
+		physics.update();
 	}
 
 	@Override
 	public void draw(Renderer renderer) {
-		// TODO Auto-generated method stub
+		renderer.drawCircle(new Circle(new Vector2f(50, 50), 20), 32);
 
+		for (Particle particle : physics.getParticles()) {
+			renderer.drawParticle(particle.getPosition());
+		}
 	}
 
 	@Override
